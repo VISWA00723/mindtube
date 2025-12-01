@@ -3,7 +3,14 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Youtube, Instagram, Loader2, Music, Video, ArrowRight, Check } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const rawBaseURL = import.meta.env.VITE_API_URL;
+
+// Clean base URL once
+const API_BASE_URL = rawBaseURL?.replace(/\/+$/, '');
+
+const api = (path: string) => {
+    return `${API_BASE_URL}/${path.replace(/^\/+/, '')}`;
+};
 
 const Downloader: React.FC = () => {
     const [url, setUrl] = useState('');
@@ -19,8 +26,8 @@ const Downloader: React.FC = () => {
         setMetadata(null);
 
         try {
-            const endpoint = platform === 'youtube' ? '/youtube/info' : '/instagram/info';
-            const response = await axios.post(`${API_BASE_URL}${endpoint}`, { url });
+            const endpoint = platform === 'youtube' ? 'youtube/info' : 'instagram/info';
+            const response = await axios.post(api(endpoint), { url });
             setMetadata(response.data);
         } catch (err) {
             setError('Failed to fetch info. Please check the URL.');
@@ -32,7 +39,8 @@ const Downloader: React.FC = () => {
 
     const handleDownload = (format: string = 'video') => {
         if (platform === 'youtube') {
-            window.location.href = `${API_BASE_URL}/youtube/download?url=${encodeURIComponent(url)}&format=${format}`;
+            const downloadURL = api(`youtube/download?url=${encodeURIComponent(url)}&format=${format}`);
+            window.location.href = downloadURL;
         } else {
             if (metadata?.url_list?.length > 0) {
                 metadata.url_list.forEach((mediaUrl: string) => {
@@ -56,23 +64,23 @@ const Downloader: React.FC = () => {
                         animate={{
                             left: platform === 'youtube' ? '4px' : '50%',
                             width: 'calc(50% - 4px)',
-                            x: platform === 'youtube' ? 0 : 0
                         }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
 
                     <button
                         onClick={() => { setPlatform('youtube'); setMetadata(null); setError(''); }}
-                        className={`relative z-10 flex items-center px-8 py-2.5 rounded-full transition-colors duration-200 ${platform === 'youtube' ? 'text-white' : 'text-gray-400 hover:text-white'
-                            }`}
+                        className={`relative z-10 flex items-center px-8 py-2.5 rounded-full transition-colors duration-200 
+                        ${platform === 'youtube' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
                     >
                         <Youtube className="mr-2 w-4 h-4" />
                         <span className="font-medium text-sm">YouTube</span>
                     </button>
+
                     <button
                         onClick={() => { setPlatform('instagram'); setMetadata(null); setError(''); }}
-                        className={`relative z-10 flex items-center px-8 py-2.5 rounded-full transition-colors duration-200 ${platform === 'instagram' ? 'text-white' : 'text-gray-400 hover:text-white'
-                            }`}
+                        className={`relative z-10 flex items-center px-8 py-2.5 rounded-full transition-colors duration-200 
+                        ${platform === 'instagram' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
                     >
                         <Instagram className="mr-2 w-4 h-4" />
                         <span className="font-medium text-sm">Instagram</span>
@@ -155,6 +163,7 @@ const Downloader: React.FC = () => {
                                             <Video className="w-4 h-4 text-indigo-400 mr-2 group-hover:text-white transition-colors" />
                                             <span className="text-sm font-medium">Video</span>
                                         </button>
+
                                         <button
                                             onClick={() => handleDownload('audio')}
                                             className="flex-1 flex items-center justify-center px-4 py-3 bg-surface-medium hover:bg-surface-border border border-surface-border rounded-xl transition-all group"
