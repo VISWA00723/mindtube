@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Youtube, Instagram, Loader2, Music, Video, ArrowRight, Check } from 'lucide-react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Downloader: React.FC = () => {
     const [url, setUrl] = useState('');
