@@ -26,7 +26,12 @@ const Downloader: React.FC = () => {
         setMetadata(null);
 
         try {
-            const endpoint = platform === 'youtube' ? 'youtube/info' : 'instagram/info';
+            // FIX endpoint — add /api
+            const endpoint =
+                platform === 'youtube'
+                    ? 'api/youtube/info'
+                    : 'api/instagram/info';
+
             const response = await axios.post(api(endpoint), { url });
             setMetadata(response.data);
         } catch (err) {
@@ -39,7 +44,10 @@ const Downloader: React.FC = () => {
 
     const handleDownload = (format: string = 'video') => {
         if (platform === 'youtube') {
-            const downloadURL = api(`youtube/download?url=${encodeURIComponent(url)}&format=${format}`);
+            // FIX endpoint — add /api
+            const downloadURL = api(
+                `api/youtube/download?url=${encodeURIComponent(url)}&format=${format}`
+            );
             window.location.href = downloadURL;
         } else {
             if (metadata?.url_list?.length > 0) {
